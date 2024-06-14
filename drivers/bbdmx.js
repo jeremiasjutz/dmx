@@ -1,17 +1,17 @@
-const dgram = require('dgram');
-const util = require('util');
-const EventEmitter = require('events').EventEmitter;
+const dgram = require("dgram");
+const util = require("util");
+const EventEmitter = require("events").EventEmitter;
 
 const UNIVERSE_LEN = 512;
 
-function BBDMX(deviceId = '127.0.0.1', options = {}) {
+function BBDMX(deviceId = "127.0.0.1", options = {}) {
   this.readyToWrite = true;
-  this.interval = options.dmx_speed ? (1000 / options.dmx_speed) : 24;
+  this.interval = options.dmx_speed ? 1000 / options.dmx_speed : 24;
   this.options = options;
   this.universe = Buffer.alloc(UNIVERSE_LEN + 1);
   this.host = deviceId;
   this.port = options.port || 9930;
-  this.dev = dgram.createSocket('udp4');
+  this.dev = dgram.createSocket("udp4");
   this.start();
 }
 
@@ -22,14 +22,21 @@ BBDMX.prototype.sendUniverse = function () {
     let channel;
     let messageBuffer = Buffer.from(UNIVERSE_LEN.toString());
 
-    for (const i = 1; i <= UNIVERSE_LEN; i++) {
-      channel = Buffer.from(' ' + this.universe[i]);
+    for (let i = 1; i <= UNIVERSE_LEN; i++) {
+      channel = Buffer.from(" " + this.universe[i]);
       messageBuffer = Buffer.concat([messageBuffer, channel]);
     }
 
-    this.dev.send(messageBuffer, 0, messageBuffer.length, this.port, this.host, () => {
-      this.readyToWrite = true;
-    });
+    this.dev.send(
+      messageBuffer,
+      0,
+      messageBuffer.length,
+      this.port,
+      this.host,
+      () => {
+        this.readyToWrite = true;
+      }
+    );
   }
 };
 
@@ -51,11 +58,11 @@ BBDMX.prototype.update = function (u, extraData) {
     this.universe[c] = u[c];
   }
 
-  this.emit('update', u, extraData);
+  this.emit("update", u, extraData);
 };
 
 BBDMX.prototype.updateAll = function (v) {
-  for (const i = 1; i <= UNIVERSE_LEN; i++) {
+  for (let i = 1; i <= UNIVERSE_LEN; i++) {
     this.universe[i] = v;
   }
 };
